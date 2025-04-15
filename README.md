@@ -1,0 +1,1 @@
+# SCR_2025_Sterowanie_Zaluzjami
