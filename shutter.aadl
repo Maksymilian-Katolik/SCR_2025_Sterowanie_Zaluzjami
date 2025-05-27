@@ -1,0 +1,250 @@
+package shutter
+public
+
+	with Data_Model;
+	with Base_Types;
+	
+	-- 
+	
+	data ControllerAction
+    	properties
+    	    Data_Model::Data_Representation => String;
+        	Data_Model::base_type => (classifier (Base_Types::String));
+    end ControllerAction;
+
+	data ShutterState
+    	properties
+        	Data_Model::Enumerators => ("Opened", "Closed", "Opening", "Closing");
+        	Data_Model::base_type => (classifier (Base_Types::Integer));
+    end ShutterState;
+
+    data EngineState
+    	properties
+    		Data_Model::Enumerators => ("Up", "Down", "Stable");
+        	Data_Model::base_type => (classifier (Base_Types::Unsigned_16));
+    end EngineState;
+
+
+
+    system SmartShutterSystem
+    end SmartShutterSystem;
+    
+    ---- OPIS SYSTEMU ----
+
+    system implementation SmartShutterSystem.impl
+    	subcomponents
+    		remoteActionDispatcher: device remote_action_dispatcher; --- ty beda przychodzily komendy z apki
+    		server: device smart_server; --koordynuje prace systemu i przetwarza dane wejsciowe
+    		shutterEngine: device shutter_engine; -- odpowiada za fizyczny ruch zalucji
+    		shutterController: device shutter_controller; -- zamienia polecenia logiczne na dzialania dla silnika
+    		
+    		-- zasoby sprzetowe
+    		cpu: processor CPU.impl;
+    		ram: memory ram.impl;
+    		eth: bus Ethernet.impl;
+    		hwc: bus HWConnection.impl; -- magistarla sprzetowa (wewn polaczenie RAM i CPU)
+    		
+    		serverController: process ServerController.impl;
+    		shutterLogicController: process LogicController.impl;
+    		shutterEngineController: process EngineController.impl;
+
+    	connections
+    		c1: bus access remoteActionDispatcher.bus_access <-> eth;
+    		c2: bus access server.bus_access <-> eth;
+    		c3: bus access shutterController.bus_access <-> eth;
+    		c4: port shutterController.action_dispatch -> shutterEngine.engine_action_receive;
+    		c5: port shutterEngine.engine_state -> shutterController.engine_state_receive;
+    		c6: bus access cpu.hwcAccess <-> hwc;
+    		c7: bus access ram.hwcAccess <-> hwc;
+    		c8: port server.server_action_dispatch -> shutterController.action_receive;
+    		c9: port remoteActionDispatcher.server_action_dispatch -> server.server_action_receive;
+    		c10: port serverController.send_remote_data -> shutterLogicController.remote_data_receive;
+    		c11: port shutterEngineController.send_current_engine_state -> shutterLogicController.engine_state_data_receive;
+    		c12: port shutterLogicController.engine_state_data_send -> shutterEngineController.receive_engine_state;
+    		c13: port shutterLogicController.remote_data_send -> serverController.remote_data_receive;
+    		c14: bus access cpu.ethernetAccess <-> eth;
+    		c15: bus access server.hwc_access <-> hwc;
+    end SmartShutterSystem.impl;
+
+
+
+	------------PROCESY-------------
+
+	-- przetwarza dane pochodzące z urzadzenia zdalnego (apki) i przesyla je dalej do kontrolera logiki
+    process ServerController
+    	features
+    		remote_data_receive: in data port ControllerAction;  -- polecenie (string) wejsciowe
+    		send_remote_data: out data port ControllerAction; --  przesyla odberane dalej do logiki
+    end ServerController;
+	
+	-- i od razu implementacja
+    process implementation ServerController.impl
+    	subcomponents
+    		serverThread: thread ProcessRemoteDataThread.impl;
+    	connections
+    		c1: port remote_data_receive -> serverThread.data_in;  -- dane z wejscia przekazuje do watku
+    		c2: port serverThread.data_out -> send_remote_data; -- dane wyjsciowe z watku idą na port wyjsćiowy
+    end ServerController.impl;
+
+	-- decyduje jakie polecenia nalezy wykonać na podstawie danych otrzymanych od serwera i aktualnego stanu silnika
+    process LogicController
+    	features
+    		remote_data_receive: in data port ControllerAction; -- otrzymane polecenia od serwera
+    		engine_state_data_receive: in data port EngineState; -- aktualny stan silnika
+    		engine_state_data_send: out data port EngineState; -- decyzja o nowym stanie silnika
+    		remote_data_send: out data port ControllerAction; -- info zwrotne do serwera
+    end LogicController;
+
+    process implementation LogicController.impl
+    	subcomponents
+    		logicThread: thread LogicControllerThread.impl; --  watek analizujacy dane z serwera
+    		transformThread: thread LogicTransformThread.impl; -- watek ktory laczy dane z logiki oraz stanu silnika, generuje końcowy stan do wykonania
+    	connections
+    		c1: port remote_data_receive -> logicThread.data_in;
+    		c2: port logicThread.data_out -> transformThread.action_data_in;
+    		c3: port transformThread.engine_state_out -> engine_state_data_send;
+    		c4: port engine_state_data_receive -> transformThread.engine_state_in;
+    end LogicController.impl;
+
+	-- monitoruje aktualny stan silnika i przekazuje go do kontrolera logiki
+    process EngineController
+    	features
+    		receive_engine_state: in data port EngineState; -- odbiera aktualny stan silnika
+    		send_current_engine_state: out data port EngineState; -- wysyla ten stan dalej
+    end EngineController;
+
+    process implementation EngineController.impl
+    	subcomponents
+    		engineThread: thread EngineControllerThread.impl; -- watek przetwarza dane o stanie silnika
+    	connections
+    		c1: port receive_engine_state -> engineThread.data_in; -- wejscie to dane a stanie silnika
+    		c2: port engineThread.data_out -> send_current_engine_state; -- po przerobce od watku wysyla je dalej do kontrolera logiki
+    end EngineController.impl;
+
+
+	-------- WATKI ---------
+
+	-- przetwarza dane z urządzenia zdalnego
+    thread ProcessRemoteDataThread
+    	features
+    		data_in: in data port ControllerAction;
+    		data_out: out data port ControllerAction;  -- wyslanie danych do logiki
+    end ProcessRemoteDataThread;
+
+    thread implementation ProcessRemoteDataThread.impl
+    end ProcessRemoteDataThread.impl;
+
+
+ 	-- przetwarzanie logiki decyzji - dostaje surowe polecenie i przetwarza je na transformacje stanu silnika
+    thread LogicControllerThread
+    	features
+    		data_in: in data port ControllerAction;
+    		data_out: out data port ControllerAction;
+    end LogicControllerThread;
+
+    thread implementation LogicControllerThread.impl
+    end LogicControllerThread.impl;
+
+	
+	-- konwersję stanów na odpowiednie działania (na podstawie stanu silnika i otrzymanej akcji)
+    thread LogicTransformThread
+    	features
+    		action_data_in: in data port ControllerAction;
+    		engine_state_in: in data port EngineState;
+    		engine_state_out: out data port EngineState;
+    		action_data_out: out data port ControllerAction;
+    end LogicTransformThread;
+
+    thread implementation LogicTransformThread.impl
+    end LogicTransformThread.impl;
+
+    thread EngineControllerThread
+    	features
+    		data_in: in data port EngineState;
+    		data_out: out data port EngineState;
+    end EngineControllerThread;
+
+    thread implementation EngineControllerThread.impl
+    end EngineControllerThread.impl;
+    
+    
+    memory RAM
+    	features
+    		hwcAccess: requires bus access HWConnection;
+    end RAM;
+
+    memory implementation RAM.impl
+    end RAM.impl;
+
+    bus Ethernet
+    end Ethernet;
+
+    bus implementation Ethernet.impl
+    end Ethernet.impl;
+
+    bus HWConnection
+    end HWConnection;
+
+    bus implementation HWConnection.impl
+    end HWConnection.impl;
+    
+    
+    -------- DEVICES ---------
+
+    -- urzadzenie (apka) - ma dostęp do internetu i wysyla zadane akcje do ServerController 
+    device remote_action_dispatcher 
+    	features
+    		server_action_dispatch: out data port ControllerAction; --polecenie
+    		bus_access: requires bus access Ethernet; -- polaczenie z netem (by miec dostep do serwera)
+    end remote_action_dispatcher;
+
+    device implementation remote_action_dispatcher.impl
+    end remote_action_dispatcher.impl;
+
+	-- odbiera polecenia i przekazuje je do kontrolera zaluzji
+    device smart_server
+    	features
+    		server_action_dispatch: out data port ControllerAction; -- wejsciowe polecenie
+    		server_action_receive: in data port ControllerAction; -- odpowiedz po przetworzeniu
+	        bus_access: requires bus access Ethernet;
+	        hwc_access: requires bus access HWConnection;  -- dostep do wewn magistarli, lokalne CPU i pamiec
+    end smart_server;
+
+    device implementation smart_server.impl
+    end smart_server.impl;
+    
+    -- tlumaczy polecenia z serwera na dzialania silnika i reaguje na jego stan
+    device shutter_controller
+    	features
+    		action_receive: in data port ControllerAction; -- polecenie z serwera
+	        action_dispatch: out data port EngineState; -- polecenie dla silnika
+	        engine_state_receive: in data port EngineState; -- odbiera aktualny stan silnika
+	        bus_access: requires bus access Ethernet;
+    end shutter_controller;
+
+    device implementation shutter_controller.impl
+    end shutter_controller.impl;
+
+    device shutter_engine
+    	features
+    		engine_action_receive: in data port EngineState; -- odbiera w jaki stan ma przejsc
+	        engine_state: out data port EngineState; -- aktualny stan silnika
+    end shutter_engine;
+
+    device implementation shutter_engine.impl
+    end shutter_engine.impl;
+
+	
+	----- PROCESOR ------
+
+    processor CPU
+      features
+        ethernetAccess: requires bus access ethernet;
+        hwcAccess: requires bus access HWConnection;
+    end CPU;
+
+    processor implementation CPU.impl
+    end CPU.impl;
+
+
+end shutter;
