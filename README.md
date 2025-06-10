@@ -75,12 +75,12 @@ smart_server: przetwarza i wysyła polecenia.\
 shutter_engine: odbiera komendy i wysyła aktualny stan.\
 shutter_controller: integruje dane z serwera i silnika.
 
+### Procesory
+CPU - główny procesor odpowiedzialny jest za odpowiednią pracę komponentów
 
 ## Analizy
 
 ### Weight Totals Report
-
-Weight totals Report
 	
 eth: [L] Sum of weights / gross weight is 0,075 kg (no limit specified)\
 hwc: [L] Sum of weights / gross weight is 0,075 kg (no limit specified)\
