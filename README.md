@@ -22,7 +22,9 @@ System umożliwa użytkowinikowi zdalne sterowanie żaluzjami za pomocą aplikac
 
 ## Opis systemu
 
-Zdeklarowany system zawiera:
+### Diagram systemu
+![AADL diagram of the vending machine system](./ShutterDiagram.png)
+
 
 ### Podkomponenty i połączenia między nimi:
 Podsystemy (devices, processes, processor, buses):\
