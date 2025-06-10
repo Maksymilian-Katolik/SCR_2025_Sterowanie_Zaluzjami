@@ -142,6 +142,6 @@ Jest to jedyny błąd, którego nie byłem w stanie rozwiązać
 Nie zwrócił żadnych błędów czy ostrzeżeń
 
 
-
-
+## Literatura
+-   [CASE AADL Tutorial](https://github.com/GaloisInc/CASE-AADL-Tutorial/tree/main/aadl_book) - główne źródło znajomości komponentów w AADL
 
