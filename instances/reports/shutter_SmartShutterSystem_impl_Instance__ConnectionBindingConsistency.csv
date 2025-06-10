@@ -1,0 +1,3 @@
+Check connection binding consistency Report
+
+ERROR:  logicThread.data_out -> transformThread.action_data_in: Hardware (processor or device) of connection source and destination are not physically connected by bus.

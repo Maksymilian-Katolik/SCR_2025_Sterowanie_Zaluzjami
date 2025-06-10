@@ -1,0 +1,35 @@
+Bound Resource Budget Analysis Report
+
+
+Processor Summary Report: 
+  Processor cpu_server: Total MIPS 15,000 MIPS of bound tasks within MIPS capacity 100,000 MIPS of cpu_server
+  Processor cpu_logic: Total MIPS 30,000 MIPS of bound tasks within MIPS capacity 100,000 MIPS of cpu_logic
+  Processor cpu_engine: Total MIPS 10,000 MIPS of bound tasks within MIPS capacity 100,000 MIPS of cpu_engine
+
+Memory Summary Report: 
+  No Memory with Memory_Size or RAMCapacity or ROMCapacity
+
+
+Detailed Workload Report:  for Processor cpu_server with Capacity 100,000 MIPS
+
+Component,Budget,Actual
+  thread serverController.serverThread,   15,000 MIPS,  0,000 MIPS,thread SmartShutterSystem_impl_Instance.serverController.serverThread total 0,000 MIPS below budget 15,000 MIPS (100,0 % slack)
+process serverController, 0,000 MIPS,15,000 MIPS,
+Total,,15,000 MIPS
+
+
+Detailed Workload Report:  for Processor cpu_logic with Capacity 100,000 MIPS
+
+Component,Budget,Actual
+  thread shutterLogicController.logicThread,   15,000 MIPS,  0,000 MIPS,thread SmartShutterSystem_impl_Instance.shutterLogicController.logicThread total 0,000 MIPS below budget 15,000 MIPS (100,0 % slack)
+  thread shutterLogicController.transformThread,   15,000 MIPS,  0,000 MIPS,thread SmartShutterSystem_impl_Instance.shutterLogicController.transformThread total 0,000 MIPS below budget 15,000 MIPS (100,0 % slack)
+process shutterLogicController, 0,000 MIPS,30,000 MIPS,
+Total,,30,000 MIPS
+
+
+Detailed Workload Report:  for Processor cpu_engine with Capacity 100,000 MIPS
+
+Component,Budget,Actual
+  thread shutterEngineController.engineThread,   10,000 MIPS,  0,000 MIPS,thread SmartShutterSystem_impl_Instance.shutterEngineController.engineThread total 0,000 MIPS below budget 10,000 MIPS (100,0 % slack)
+process shutterEngineController, 0,000 MIPS,10,000 MIPS,
+Total,,10,000 MIPS

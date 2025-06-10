@@ -1,0 +1,33 @@
+Not Bound Resource Budget Analysis Report
+
+Resource Summary: 
+  MIPS capacity 300,000 MIPS : MIPS budget 55,000 MIPS
+  3 out of 3 with MIPS capacity
+  7 out of 7 with MIPS budget
+
+
+
+Detailed Processor MIPS Capacity Report 
+
+Component,Capacity
+processor cpu_server, 100,000 MIPS,
+processor cpu_logic, 100,000 MIPS,
+processor cpu_engine, 100,000 MIPS,
+Total, 300,000 MIPS,
+
+
+Detailed MIPS Budget Report 
+
+Component,Budget,Actual,Notes
+device remoteActionDispatcher, 0,000 MIPS,0,000 MIPS,
+device server, 0,000 MIPS,0,000 MIPS,
+device shutterEngine, 0,000 MIPS,0,000 MIPS,
+device shutterController, 0,000 MIPS,0,000 MIPS,
+  thread serverController.serverThread,   15,000 MIPS,  0,000 MIPS,thread SmartShutterSystem_impl_Instance.serverController.serverThread total 0,000 MIPS below budget 15,000 MIPS (100,0 % slack)
+process serverController, 0,000 MIPS,15,000 MIPS,
+  thread shutterLogicController.logicThread,   15,000 MIPS,  0,000 MIPS,thread SmartShutterSystem_impl_Instance.shutterLogicController.logicThread total 0,000 MIPS below budget 15,000 MIPS (100,0 % slack)
+  thread shutterLogicController.transformThread,   15,000 MIPS,  0,000 MIPS,thread SmartShutterSystem_impl_Instance.shutterLogicController.transformThread total 0,000 MIPS below budget 15,000 MIPS (100,0 % slack)
+process shutterLogicController, 0,000 MIPS,30,000 MIPS,
+  thread shutterEngineController.engineThread,   10,000 MIPS,  0,000 MIPS,thread SmartShutterSystem_impl_Instance.shutterEngineController.engineThread total 0,000 MIPS below budget 10,000 MIPS (100,0 % slack)
+process shutterEngineController, 0,000 MIPS,10,000 MIPS,
+Total, ,55,000 MIPS,

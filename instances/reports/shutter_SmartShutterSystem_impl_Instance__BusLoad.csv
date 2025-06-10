@@ -1,0 +1,46 @@
+Bus load analysis of SmartShutterSystem_impl_Instance
+
+
+"Physical Bus","Capacity (KB/s)","Budget (KB/s)","Required Budget (KB/s)","Actual (KB/s)"
+"eth","12500.0","125.0","0.0","0.21333333333333337"
+"hwc","12500.0","125.0","0.0","0.0"
+
+"Bus eth has data overhead of 0 bytes"
+"Bound Virtual Bus/Connection","Capacity (KB/s)","Budget (KB/s)","Required Budget (KB/s)","Actual (KB/s)"
+"remoteActionDispatcher.server_action_dispatch -> server.server_action_receive","","0.0","","0.0"
+"server.server_action_dispatch -> shutterController.action_receive","","0.0","","0.04"
+"shutterEngine.engine_state -> shutterController.engine_state_receive","","0.0","","0.13333333333333336"
+"shutterController.action_dispatch -> shutterEngine.engine_action_receive","","0.0","","0.04"
+
+"Connection remoteActionDispatcher.server_action_dispatch -> server.server_action_receive bound to eth"
+"WARNING: Connection remoteActionDispatcher.server_action_dispatch -> server.server_action_receive has no bandwidth budget"
+
+"Connection server.server_action_dispatch -> shutterController.action_receive bound to eth"
+"WARNING: Connection server.server_action_dispatch -> shutterController.action_receive has no bandwidth budget"
+
+"Connection shutterEngine.engine_state -> shutterController.engine_state_receive bound to eth"
+"WARNING: Connection shutterEngine.engine_state -> shutterController.engine_state_receive has no bandwidth budget"
+
+"Connection shutterController.action_dispatch -> shutterEngine.engine_action_receive bound to eth"
+"WARNING: Connection shutterController.action_dispatch -> shutterEngine.engine_action_receive has no bandwidth budget"
+
+"Bus hwc has data overhead of 0 bytes"
+"Bound Virtual Bus/Connection","Capacity (KB/s)","Budget (KB/s)","Required Budget (KB/s)","Actual (KB/s)"
+"serverController.serverThread.data_out -> shutterLogicController.logicThread.data_in","","0.0","","0.0"
+"shutterLogicController.remote_data_send -> serverController.serverThread.data_in","","0.0","","0.0"
+"shutterLogicController.transformThread.engine_state_out -> shutterEngineController.engineThread.data_in","","0.0","","0.0"
+"shutterEngineController.engineThread.data_out -> shutterLogicController.transformThread.engine_state_in","","0.0","","0.0"
+
+"Connection serverController.serverThread.data_out -> shutterLogicController.logicThread.data_in bound to hwc"
+"WARNING: Connection serverController.serverThread.data_out -> shutterLogicController.logicThread.data_in has no bandwidth budget"
+
+"Connection shutterLogicController.remote_data_send -> serverController.serverThread.data_in bound to hwc"
+"WARNING: Connection shutterLogicController.remote_data_send -> serverController.serverThread.data_in has no bandwidth budget"
+
+"Connection shutterLogicController.transformThread.engine_state_out -> shutterEngineController.engineThread.data_in bound to hwc"
+"WARNING: Connection shutterLogicController.transformThread.engine_state_out -> shutterEngineController.engineThread.data_in has no bandwidth budget"
+
+"Connection shutterEngineController.engineThread.data_out -> shutterLogicController.transformThread.engine_state_in bound to hwc"
+"WARNING: Connection shutterEngineController.engineThread.data_out -> shutterLogicController.transformThread.engine_state_in has no bandwidth budget"
+
+
