@@ -5,16 +5,6 @@ public
 	with Data_Model;
 	with Base_Types;
 	
-	-- do rozwiazania (errory):
-	-- Connection Binding Consistency (6)
-	-- Resource Analysis (Not Bound) (1)
-	
-	-- warningi:
-	-- Weight Total (2)
-	-- Resource Analysis (Not Bound) (1)
-	-- Bus Load (4)
-	
-	
 	
 	data ControllerAction
     	properties
@@ -318,7 +308,7 @@ public
         ethernetAccess: requires bus access Ethernet;
         hwcAccess: requires bus access HWConnection;
        properties
-    	SEI::MIPSCapacity => 100.0 MIPS;  -- np. 100 MIPS dostępne na CPU
+    	SEI::MIPSCapacity => 100.0 MIPS;
     	SEI::GrossWeight => 0.7 kg;
     	SEI::NetWeight => 0.6 kg;
     end CPU;
